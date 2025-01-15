@@ -146,7 +146,28 @@ Note: If the script runs successfully, your environment is ready for use. This a
 * We provide two environments files. The first one is the full conda export to get all packages we used to track the environment along with its dependencies (environment_full.yaml). The other one is a cleaned file that just includes important packages to get the code working (environment.yaml).
 
 ### Docker Image
-The Docker Image will be released upon acceptance.
+We created a beta-version for a docker image. You can pull the image from here: [ikimhoerst/cellvit:beta](https://hub.docker.com/repository/docker/ikimhoerst/cellvit/general). The docker container has all requirements preinstalled and is intended to run on a linux/amd64 plattform. We included the CellViT-SAM-H checkpoint and all classifiers for this model inside the container.
+
+#### Running the container
+To start the container, use the following command. Replace `/path/to/local/input` and `/path/to/local/output` with the appropriate local paths on your system to load slides into the container as well as saving results locally:
+```sh
+docker run --name cellvit++ \
+  --gpus all \ # gpus to use (default all)
+  --memory=8g \ # memory, we recommend more (16g)
+  -v /path/to/local/input:/workspace/CellViT-plus-plus/input-data \ This directory contains the input data mounted into the container.
+  -v /path/to/local/output:/workspace/CellViT-plus-plus/output-data \ This directory contains the output data mounted from the container.
+  -it \ # start terminal in workdir
+  ikimhoerst/cellvit:beta
+```
+To run inference, you can use the same commands as given in the [examples](#examples) below. However, you do not need to hand over the model checkpiont anymore, as CellViT-SAM-H is the default model in the container. Please consider your input and output paths accordingly. The classifiers are located inside the `./checkpoints/classifier/sam-h` folder likewise to this git repository.
+
+#### Using docker compose
+You can also use the given [`docker-compose.yaml`](./docker-compose.yaml) file. Replace `/path/to/local/input` and `/path/to/local/output` (under volumes) with the appropriate local paths on your system to load slides into the container as well as saving results locally. Consider increasing the memory to 16g or 32g, if memory problems occur.
+
+Start with:
+```sh
+docker-compose up
+```
 
 ### Model Checkpoints
 Checkpoints can be downloaded here from [Google-Drive](https://drive.google.com/drive/folders/1ujtMcxAr5kYYuvnbglfYZZnRH3ZOli79?usp=sharing). They should be placed inside the `./checkpoints` folder. Classifier checkpoints are already located inside the `./checkpoints/classifier` folder. Unfortunately, we cannot share all checkpoints due to their license.
