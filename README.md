@@ -197,6 +197,10 @@ Key aspects of the inference script:
 > :heavy_plus_sign: Single or multiple WSI processing without preprocessing
 
 ### CLI (In-Memory)
+> [!CAUTION]
+> Ray has problems when changing the GPU IDs without environment variables. We propose to set the environment variable `export CUDA_VISIBLE_DEVICES=xxx`instead of changing the default GPU with the `--gpu` flag.
+.
+
 If the data is prepared, use the [`detect_cells.py`](cellvit/detect_cells.py) script inside the `cellvit` folder to perform inference:
 
 `python3 ./cellvit/detect_cells.py --OPTIONS`
