@@ -114,9 +114,9 @@ For more information about the viewer, see [below](#web-based-viewer)
 
 3. Install pytorch for your system  
    We used the following pytorch version:
-   - torch==2.2.1
-   - torchaudio==2.2.1
-   - torchvision==0.17.1
+   - torch==2.2.2
+   - torchaudio==2.2.2
+   - torchvision==0.17.2
 
     You can find installation instructions regarding pytorch here: https://pytorch.org/get-started/previous-versions/
 
