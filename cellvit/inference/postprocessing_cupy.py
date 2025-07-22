@@ -662,6 +662,12 @@ class BatchPoolingActor:
             batch_cell_positions = batch_cell_positions + patch_cell_positions
 
         if self.detection_cell_postprocessor.classifier is not None:
+            if len(batch_cell_tokens) == 0:
+                print(
+                    "[WARNING] No cell tokens found in this batch. Possibly empty patch or all cells classified as background.")
+                # Safely skip classification for this batch
+                return batch_complete, batch_detection, [], []
+            
             batch_cell_tokens_pt = torch.stack(batch_cell_tokens)
             updated_preds = self.detection_cell_postprocessor.classifier(
                 batch_cell_tokens_pt
