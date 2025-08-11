@@ -59,7 +59,6 @@ seaborn==0.12.2
 setuptools==65.6.3
 shapely==1.8.5.post1
 simpleitk==2.2.1
-snappy==3.1.1
 tabulate==0.9.0
 tensorboard==2.12.3
 tensorflow==2.12.0
