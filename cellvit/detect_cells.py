@@ -7,6 +7,7 @@
 
 import sys
 import os
+import json
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(os.path.abspath(current_dir))
@@ -39,15 +40,22 @@ def main():
 
     if command.lower() == "process_wsi":
         celldetector.logger.info("Processing single WSI file")
+
+        # Load ROIs if provided
+        rois = None
+        if args.get("rois"):
+            rois = json.loads(args["rois"])  # Assuming ROIs are passed as a JSON string
+
         wsi_path = Path(args["wsi_path"])
-        wsi_name = wsi_path.stem
         celldetector.process_wsi(
             wsi_path=wsi_path,
             wsi_properties=args.get("wsi_properties", {}),
             resolution=args["resolution"],
+            rois=rois,
         )
 
     elif command.lower() == "process_dataset":
+        # TODO implement rois for dataset processing
         celldetector.logger.info("Processing whole dataset")
         if args["filelist"] is not None:
             celldetector.logger.info(f"Loading files from filelist {args['filelist']}")
@@ -82,10 +90,6 @@ def main():
                 celldetector.logger.info(f"Progress: {wsi_index+1}/{len(wsi_filelist)}")
                 wsi_path = Path(wsi)
                 wsi_properties = {}
-                # if "slide_mpp" in wsi:
-                #     wsi_properties["slide_mpp"] = wsi["slide_mpp"]
-                # if "magnification" in wsi:
-                #     wsi_properties["magnification"] = wsi["magnification"]
                 celldetector.process_wsi(
                     wsi_path=wsi_path,
                     wsi_properties=wsi_properties,
