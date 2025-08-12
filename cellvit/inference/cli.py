@@ -13,11 +13,11 @@ import json
 import warnings
 
 
-def parse_wsi_properties(wsi_properties_str):
+def parse_json_properties(json_properties_str):
     try:
-        return json.loads(wsi_properties_str)
+        return json.loads(json_properties_str)
     except json.JSONDecodeError:
-        raise argparse.ArgumentTypeError(f"Invalid JSON format: {wsi_properties_str}")
+        raise argparse.ArgumentTypeError(f"Invalid JSON format: {json_properties_str}")
 
 
 class InferenceWSIParser:
@@ -49,6 +49,12 @@ class InferenceWSIParser:
             type=str,
             help="Path to a classifier (.pth) to replace PanNuke classification results with a new scheme. Example classifiers can be found in ./checkpoints/classifiers folder. "
             "A label map with an overview is provided in each README for the respective classifier. Cannot be used together with --binary.",
+            default=None,
+        )
+        parser.add_argument(
+            "--rois",
+            type=parse_json_properties,
+            help="Regions of interest (ROIs) as a JSON string or path to a JSON file. ",
             default=None,
         )
         parser.add_argument(
@@ -107,7 +113,7 @@ class InferenceWSIParser:
         )
         subparser_wsi.add_argument(
             "--wsi_properties",
-            type=parse_wsi_properties,
+            type=parse_json_properties,
             help="WSI Metadata for processing, fields are slide_mpp and magnification. Provide as JSON string.",
         )
         subparser_wsi.add_argument(

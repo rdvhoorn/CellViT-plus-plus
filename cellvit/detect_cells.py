@@ -41,17 +41,12 @@ def main():
     if command.lower() == "process_wsi":
         celldetector.logger.info("Processing single WSI file")
 
-        # Load ROIs if provided
-        rois = None
-        if args.get("rois"):
-            rois = json.loads(args["rois"])  # Assuming ROIs are passed as a JSON string
-
         wsi_path = Path(args["wsi_path"])
         celldetector.process_wsi(
             wsi_path=wsi_path,
             wsi_properties=args.get("wsi_properties", {}),
             resolution=args["resolution"],
-            rois=rois,
+            rois=args["rois"],
         )
 
     elif command.lower() == "process_dataset":
