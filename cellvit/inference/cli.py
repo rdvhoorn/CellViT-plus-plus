@@ -52,12 +52,6 @@ class InferenceWSIParser:
             default=None,
         )
         parser.add_argument(
-            "--rois",
-            type=parse_json_properties,
-            help="Regions of interest (ROIs) as a JSON string or path to a JSON file. ",
-            default=None,
-        )
-        parser.add_argument(
             "--gpu", type=int, help="Cuda-GPU ID for inference. Default: 0", default=0
         )
         parser.add_argument(
@@ -121,6 +115,12 @@ class InferenceWSIParser:
             type=str,
             help="Path to a .yaml file containing preprocessing configurations, optional",
         )
+        subparser_wsi.add_argument(
+            "--rois",
+            type=parse_json_properties,
+            help="Regions of interest (ROIs) as a JSON string.",
+            default=None,
+        )
 
         subparser_dataset = subparsers.add_parser(
             "process_dataset",
@@ -134,7 +134,7 @@ class InferenceWSIParser:
             "--filelist",
             type=str,
             help="Filelist with WSI to process. Must be a .csv file with one row 'path' denoting the paths to all WSI to process. "
-            "In addition, WSI properties can be provided by adding two additional columns, named 'slide_mpp' and 'magnification'. "
+            "In addition, WSI properties can be provided by adding three additional columns, named 'slide_mpp', 'magnification', and 'rois'."
             "Other cols are discarded.",
             default=None,
         )

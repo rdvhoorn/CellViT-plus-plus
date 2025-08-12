@@ -90,8 +90,8 @@ class CellViTInferenceMemory(CellViTInference):
         """
         assert resolution in [0.25, 0.5], "Resolution must be one of [0.25, 0.5]"
         self.logger.info(f"Processing WSI: {wsi_path.name}")
-        self.logger.info("Preparing WSI - Loading tissue region and prepare patches")
-        slide_meta, target_mpp = load_wsi_meta(
+
+        _, target_mpp = load_wsi_meta(
             wsi_path=wsi_path,
             wsi_properties=wsi_properties,
             resolution=resolution,
