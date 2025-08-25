@@ -5,8 +5,10 @@
 # Institute for Artifical Intelligence in Medicine,
 # University Medicine Essen
 
+from curses import has_key
 import sys
 import os
+import json
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(os.path.abspath(current_dir))
@@ -39,12 +41,13 @@ def main():
 
     if command.lower() == "process_wsi":
         celldetector.logger.info("Processing single WSI file")
+
         wsi_path = Path(args["wsi_path"])
-        wsi_name = wsi_path.stem
         celldetector.process_wsi(
             wsi_path=wsi_path,
             wsi_properties=args.get("wsi_properties", {}),
             resolution=args["resolution"],
+            rois=args["rois"],
         )
 
     elif command.lower() == "process_dataset":
@@ -57,6 +60,12 @@ def main():
             for wsi_index, wsi in enumerate(wsi_filelist):
                 celldetector.logger.info(f"Progress: {wsi_index+1}/{len(wsi_filelist)}")
                 wsi_path = Path(wsi["path"])
+
+                rois = None
+                if "rois" in wsi:
+                    if not (wsi["rois"] is None or wsi["rois"] == "None"):
+                        rois = json.loads(wsi["rois"])
+
                 wsi_properties = {}
                 if "slide_mpp" in wsi:
                     wsi_properties["slide_mpp"] = wsi["slide_mpp"]
@@ -66,6 +75,7 @@ def main():
                     wsi_path=wsi_path,
                     wsi_properties=wsi_properties,
                     resolution=args["resolution"],
+                    rois=rois,
                 )
 
         elif args["wsi_folder"] is not None:
@@ -82,10 +92,6 @@ def main():
                 celldetector.logger.info(f"Progress: {wsi_index+1}/{len(wsi_filelist)}")
                 wsi_path = Path(wsi)
                 wsi_properties = {}
-                # if "slide_mpp" in wsi:
-                #     wsi_properties["slide_mpp"] = wsi["slide_mpp"]
-                # if "magnification" in wsi:
-                #     wsi_properties["magnification"] = wsi["magnification"]
                 celldetector.process_wsi(
                     wsi_path=wsi_path,
                     wsi_properties=wsi_properties,

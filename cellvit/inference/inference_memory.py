@@ -12,7 +12,7 @@
 # University Medicine Essen
 
 from pathlib import Path
-from typing import Union
+from typing import Union, Optional, List
 
 import pandas as pd
 import ray
@@ -73,6 +73,7 @@ class CellViTInferenceMemory(CellViTInference):
         resolution: float = 0.25,
         apply_prefilter: bool = True,
         filter_patches: bool = False,
+        rois: Optional[List[dict]] = None,
         **kwargs,
     ) -> None:
         """Process a whole slide image with CellViT.
@@ -84,11 +85,13 @@ class CellViTInferenceMemory(CellViTInference):
             resolution (float, optional): Target resolution. Defaults to 0.25.
             apply_prefilter (bool, optional): Prefilter. Defaults to True.
             filter_patches (bool, optional): Filter patches after processing. Defaults to False.
+            rois (Optional[List[dict]], optional): List of ROIs to process. Each ROI is a dictionary
+                with keys 'x', 'y', 'width', and 'height'. Defaults to None.
         """
         assert resolution in [0.25, 0.5], "Resolution must be one of [0.25, 0.5]"
         self.logger.info(f"Processing WSI: {wsi_path.name}")
-        self.logger.info(f"Preparing WSI - Loading tissue region and prepare patches")
-        slide_meta, target_mpp = load_wsi_meta(
+
+        _, target_mpp = load_wsi_meta(
             wsi_path=wsi_path,
             wsi_properties=wsi_properties,
             resolution=resolution,
@@ -105,6 +108,7 @@ class CellViTInferenceMemory(CellViTInference):
             apply_prefilter=apply_prefilter,
             filter_patches=filter_patches,
             target_mpp_tolerance=0.035,
+            rois=rois,
             **kwargs,
         )
         wsi_path = Path(wsi_path)
@@ -114,9 +118,14 @@ class CellViTInferenceMemory(CellViTInference):
             logger=self.logger,
             transforms=self.inference_transforms,
         )
+
+        if rois:
+            self.logger.info(f"Processing only specified ROIs: {rois}")
+
         wsi_inference_dataloader = LivePatchWSIDataloader(
             dataset=wsi_inference_dataset, batch_size=self.batch_size, shuffle=False
         )
+
         wsi = WSIMetadata(
             name=wsi_path.name,
             slide_path=wsi_path,
@@ -148,6 +157,13 @@ class CellViTInferenceMemory(CellViTInference):
                 wsi_inference_dataloader, total=len(wsi_inference_dataloader)
             )
             for batch_num, batch in enumerate(wsi_inference_dataloader):
+                if len(batch[0]) == 0:
+                    self.logger.info(
+                        f"Batch {batch_num} is empty, skipping to next batch."
+                    )
+                    pbar.update(1)
+                    continue
+
                 patches = batch[0].to(self.device)
                 metadata = batch[1]
                 batch_actor = batch_pooling_actors[batch_num % self.ray_actors]

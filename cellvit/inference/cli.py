@@ -13,11 +13,11 @@ import json
 import warnings
 
 
-def parse_wsi_properties(wsi_properties_str):
+def parse_json_properties(json_properties_str):
     try:
-        return json.loads(wsi_properties_str)
+        return json.loads(json_properties_str)
     except json.JSONDecodeError:
-        raise argparse.ArgumentTypeError(f"Invalid JSON format: {wsi_properties_str}")
+        raise argparse.ArgumentTypeError(f"Invalid JSON format: {json_properties_str}")
 
 
 class InferenceWSIParser:
@@ -107,13 +107,19 @@ class InferenceWSIParser:
         )
         subparser_wsi.add_argument(
             "--wsi_properties",
-            type=parse_wsi_properties,
+            type=parse_json_properties,
             help="WSI Metadata for processing, fields are slide_mpp and magnification. Provide as JSON string.",
         )
         subparser_wsi.add_argument(
             "--preprocessing_config",
             type=str,
             help="Path to a .yaml file containing preprocessing configurations, optional",
+        )
+        subparser_wsi.add_argument(
+            "--rois",
+            type=parse_json_properties,
+            help="Regions of interest (ROIs) as a JSON string.",
+            default=None,
         )
 
         subparser_dataset = subparsers.add_parser(
@@ -128,7 +134,7 @@ class InferenceWSIParser:
             "--filelist",
             type=str,
             help="Filelist with WSI to process. Must be a .csv file with one row 'path' denoting the paths to all WSI to process. "
-            "In addition, WSI properties can be provided by adding two additional columns, named 'slide_mpp' and 'magnification'. "
+            "In addition, WSI properties can be provided by adding three additional columns, named 'slide_mpp', 'magnification', and 'rois'."
             "Other cols are discarded.",
             default=None,
         )
